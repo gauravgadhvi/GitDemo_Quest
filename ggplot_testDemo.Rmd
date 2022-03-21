@@ -1,0 +1,142 @@
+---
+title: "Anna_plot"
+author: "Gaurav Gadhvi"
+date: "10/21/2020"
+output: html_document
+---
+
+
+```{r setup}
+
+require(knitr)
+library(ggplot2)
+library(dplyr)
+library(ggthemes)
+library(reshape2)
+library(ggrepel)
+
+knitr::opts_knit$set(root.dir = "/projects/b1063/Gaurav/Bowdish_Aging_PCA/issue_102020")
+
+```
+
+
+```{r}
+
+df <- read.csv("./atac1_hi_filt.csv", header = T)
+
+df2_o_50 <-  read.csv("./atac1_hi_filt_aging_old_subset_top50.csv", header=T)
+df2_y_50 <- read.csv("./atac1_hi_filt_aging_young_subset_top50.csv", header=T)
+
+df2_o <-  read.csv("./atac1_hi_filt_agingsig_old.csv", header=T)
+df2_y <- read.csv("./atac1_hi_filt_agingsig_young.csv", header=T)
+
+atac1hifilt_annotate <- read.csv("./atac1hifilt_annotate.txt", sep = "\t", header = T)
+
+df["Gene_Name"] <- atac1hifilt_annotate$Gene.Name
+
+
+```
+
+
+```{r}
+
+### Plot the scatter
+
+ggplot(df, aes(x = log2(y + 1), y = log2(o + 1), label = Gene_Name)) +
+  geom_point(color = case_when(df$Peaks %in% df2_o$Peaks ~ "#595959",
+                               df$Peaks %in% df2_y$Peaks ~ "#FF8000",
+                               TRUE ~ "#000000"), size = 2 , alpha = 0.6)
+
+```
+
+```{r}
+
+## Plot with labels for df2_o_50
+ggplot(df, aes(x = log2(y + 1), y = log2(o + 1), label = Gene_Name)) +
+  geom_point(color = case_when(df$Peaks %in% df2_o$Peaks ~ "#595959",
+                               df$Peaks %in% df2_y$Peaks ~ "#FF8000",
+                               TRUE ~ "#000000"), size = 2 , alpha = 0.6) +
+  geom_label_repel(data = subset(df, Peaks %in% df2_o_50$Peaks),
+                   size = 2,
+                   box.padding = 1.5,
+                   point.padding = 0.5,
+                   force = 100,
+                   segment.size = 0.1,
+                   #colour = "red",
+                   segment.color = "#595959")
+
+
+
+```
+```{r}
+
+
+## Plot with labels for df2_o_50 and df2_y_50
+ggplot(df, aes(x = log2(y + 1), y = log2(o + 1), label = Gene_Name)) +
+  geom_point(color = case_when(df$Peaks %in% df2_o$Peaks ~ "#595959",
+                               df$Peaks %in% df2_y$Peaks ~ "#FF8000",
+                               TRUE ~ "#000000"), size = 2 , alpha = 0.6) +
+  geom_label_repel(data = subset(df, Peaks %in% df2_o_50$Peaks),
+                   size = 2,
+                   nudge_x = 4,
+                   nudge_y = 1,
+                   box.padding = 3,
+                   force = 10,
+                   point.padding = 1,
+                   segment.size = 0.1,
+                   #xlim = c(2,15),
+                   ylim = c(6,17),
+                   #colour = "red",
+                   #direction = "y",
+                   segment.color = "#595959") +
+  geom_label_repel(data = subset(df, Peaks %in% df2_y_50$Peaks),
+                   size = 2,
+                   nudge_x = 5,
+                   nudge_y = -1,
+                   box.padding = 3,
+                   point.padding = 1,
+                   force = 10,
+                   segment.size = 0.1,
+                   min.segment.length = 1,
+                   xlim = c(5,16),
+                   #ylim = c(0,10),
+                   #color = "green",
+                   #direction = "x",
+                   segment.color = "#FF8000")
+
+```
+```{r}
+
+## Plot with labels for df2_o_50 and df2_y_50 and colored labels
+ggplot(df, aes(x = log2(y + 1), y = log2(o + 1), label = Gene_Name)) +
+  geom_point(color = case_when(df$Peaks %in% df2_o$Peaks ~ "#595959",
+                               df$Peaks %in% df2_y$Peaks ~ "#FF8000",
+                               TRUE ~ "#000000"), size = 2 , alpha = 0.6) +
+  geom_label_repel(data = subset(df, Peaks %in% df2_o_50$Peaks),
+                   size = 2,
+                   nudge_x = 4,
+                   nudge_y = 1,
+                   box.padding = 3,
+                   force = 10,
+                   point.padding = 1,
+                   segment.size = 0.1,
+                   #xlim = c(2,15),
+                   ylim = c(6,17),
+                   colour = "red",
+                   #direction = "y",
+                   segment.color = "#595959") +
+  geom_label_repel(data = subset(df, Peaks %in% df2_y_50$Peaks),
+                   size = 2,
+                   nudge_x = 3,
+                   nudge_y = -1,
+                   box.padding = 3,
+                   point.padding = 1,
+                   force = 5,
+                   segment.size = 0.1,
+                   min.segment.length = 2,
+                   xlim = c(5,16),
+                   #ylim = c(0,10),
+                   color = "steelblue",
+                   #direction = "x",
+                   segment.color = "#FF8000")
+```
